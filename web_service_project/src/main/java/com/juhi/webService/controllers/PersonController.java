@@ -1,6 +1,6 @@
 package com.juhi.webService.controllers;
-
 import java.util.List;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.juhi.webService.models.Person;
@@ -20,28 +21,54 @@ import com.juhi.webService.repositories.PersonRepository;
 @CrossOrigin(origins= "*")
 public class PersonController {
 	
+	
+	
 	@Autowired
 	private PersonRepository personRepository;
 	
+	
+	@Autowired
+	private ListService ListService;
+	
+	@SuppressWarnings("rawtypes")
 	@GetMapping
-	public List<Person> List(){
-		return personRepository.findAll();
+	public List<Person> List(@RequestParam(value="priority", defaultValue="0") int priority,
+			@RequestParam(value="limit",defaultValue="5000") int limit,
+			@RequestParam(value="sort",defaultValue="asc", required=false) String sort){
+		
+		return ListService.getAllPeople();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@PostMapping("/create")
 	//@ResponseStatus(HttpStatus.OK)
 	public String create(@RequestBody Person person) {
+		
 		personRepository.save(person);
-		return "The new person is created succesfully.";
+		this.ListService.clearLists();
+		return "The new person is created succesfully."
+				+ "és ennyi entity van: " + this.ListService.tableNumber()+
+					"és ez pálya erősorrendje: " + this.ListService.getPrioList(this.ListService.tableNumber())+ 
+					"és ezek a szintek adhatóak ki sorrendben: "+ this.ListService.getLevel();
+				
 	}
+	@SuppressWarnings("rawtypes")
 	@GetMapping("/{id}")
 	public Person get(@PathVariable("id") long id) {
 		return personRepository.getOne(id);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@DeleteMapping("/cancel/{id}")
 	public List<Person> cancelPerson(@PathVariable int id) {
 		personRepository.deleteById((long) id);;
+		return personRepository.findAll();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@DeleteMapping("/cancel/all")
+	public List<Person> cancelPerson() {
+		personRepository.deleteAll();
 		return personRepository.findAll();
 	}
 }
