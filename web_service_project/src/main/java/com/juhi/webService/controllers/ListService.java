@@ -17,13 +17,30 @@ public class ListService {
 	
 	private List<Integer> list1 = new LinkedList<>();
     private  List<Integer> list2 = new LinkedList<>();
-    private List<Integer> output = new LinkedList<>();
+    private List<Integer> priorityList = new LinkedList<>();
     private List<Integer> levelList = new LinkedList<>();
-    private List<Person> people = new LinkedList<>();
-    private List<Person> tempList = new LinkedList();
+	@SuppressWarnings("rawtypes")
+	private List<Person> people = new LinkedList<>();
+	@SuppressWarnings("rawtypes")
+	private List<Person> teamList = new LinkedList();
+    @SuppressWarnings("rawtypes")
+	private List<Person> finalPeople = new LinkedList();
+    @SuppressWarnings("rawtypes")
+	private List<Person> tempList = new LinkedList();
     
-    
-    
+    private int numberOfField;
+    private int tempField;
+    private int counter = 0;
+    private int number;
+    /* a "kapcsolo" változó azért lett bevezetve, mert egyszer az egyik 
+    oldalra, egyszer a másik oldalra kell pakolnom a kajakosokat*/
+    private boolean kapcsolo = false;
+    /* a "probalkozas" változó azért lett bevezetve, hogy limitálja a 
+    azt a próbálkozást,hogy olyan kajakost keressen a mellette lévő pályára
+    , aki más csapathoz tartozik. így kerülhető el egy végtelen ciklus.*/      
+    private int probalkozas=0;
+    private int teamlist = 0;
+    private int sorszam = 1;
     private int fele;
     private boolean paros;
 	
@@ -59,7 +76,7 @@ public class ListService {
         if (paros == false) {
             //ha páratlan a szám, akkor a legkedvezőbb pálya a szám fele+1 lesz,
             //ezt már most beleteszem a priority listába.
-            output.add(fele + 1);
+            priorityList.add(fele + 1);
         }
         
         //itt két listába teszem a számokat, és ezeket fogom majd a megfelelő
@@ -84,27 +101,27 @@ public class ListService {
         }
         for (int i = 0; i < fele; i++) {
             if (list1.get(i) != null) {
-                output.add(list1.get(i));
+                priorityList.add(list1.get(i));
             }
 
             if (list2.get(i) != null) {
-                output.add(list2.get(i));
+                priorityList.add(list2.get(i));
             }
         }
 
-        return output;
+        return priorityList;
     }
 	
 	public List<Integer> getLevel() {
         if (paros == false) {
         	levelList.add(1);
-         for (int i = 1; i <((int)output.size()/2)+1; i++) {
+         for (int i = 1; i <((int)priorityList.size()/2)+1; i++) {
         	 levelList.add(i+1);
         	 levelList.add(i+1);
 		} 
         }
         else {
-                    for (int i = 0; i < (output.size()/2); i++) {
+                    for (int i = 0; i < (priorityList.size()/2); i++) {
                     	levelList.add(i+1);
                     	levelList.add(i+1);
 		}
@@ -113,7 +130,7 @@ public class ListService {
 	
 	
 	public  List<Person>orderFields() {
-		
+		people.sort(Person.priorityComperator);
        
 		
 		return people;
@@ -125,7 +142,7 @@ public class ListService {
 		
 		this.list1.clear();
 		this.list2.clear();
-		this.output.clear();
+		this.priorityList.clear();
 		this.levelList.clear();
 	}
 	
