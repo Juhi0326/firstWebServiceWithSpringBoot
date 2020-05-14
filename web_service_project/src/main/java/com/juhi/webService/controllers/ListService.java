@@ -197,57 +197,84 @@ public class ListService {
               } catch (Exception e) {
                   System.out.println(e);
               }
-		
+              //##########################################################################
+              //Innen kezdem a sima lista rendezését
+              //##########################################################################
+              //sorbaradezem csapat szernit
+              teamList.sort(Person.TeamComperator);
               
+              teamList = SorszamotAd(teamList, sorszam);
               
+              teamList.sort(Person.priorityComperator);
               
+              finalPeople.sort(Person.levelComperator);
+        
+              teamlist = numberOfTeamsInList(teamList);
+              while (teamlist > 1 && !teamList.isEmpty()) {
+                  if (!finalPeople.isEmpty()) {
+                      Person utolso = getTeamOfLastPrioPerson(finalPeople, kapcsolo);
+                     
+                      for (int i = 0; i <= teamList.size() - 1; i++) {
+                          if (!teamList.get(i).getTeam().equals(utolso.getTeam()) && probalkozas<teamList.size()) {
+                              
+                              teamList.get(i).setField(priorityList.get(0));
+                              
+                              teamList.get(i).setLevel(levelList.get(0));
+                              teamList.get(i).setPriority(100);
+                              priorityList.remove(0);
+                              levelList.remove(0);
+                              finalPeople.add(teamList.get(i));
+                              teamList.remove(i);
+                              if (kapcsolo) {
+                                  kapcsolo = false;
+                              } else {
+                                  kapcsolo = true;
+                              }
+                              probalkozas=0;
+                              break;
+                          } else {
+                              probalkozas++;
+                          }
+                          
+                      }
+                      
+                  } else {
+                      //ha nincs a kiemelteslistában senki, akkor ez fut le!
+                      
+                      teamList.get(0).setLevel(levelList.get(0));
+                      teamList.get(0).setField(priorityList.get(0));
+                      teamList.get(0).setPriority(100);
+                      priorityList.remove(0);
+                      levelList.remove(0);
+                      finalPeople.add(teamList.get(0));
+                      teamList.remove(0);
+               
+                  }
+                  if (!teamList.isEmpty()) {
+                      teamlist = numberOfTeamsInList(teamList);
+                  }            
+              }
+              while (!teamList.isEmpty()) {            
+                  for (Person person : teamList) {
+                      
+                      person.setField(priorityList.get(0));
+                      
+                      person.setLevel(levelList.get(0));
+                      person.setPriority(100);
+                      priorityList.remove(0);
+                      levelList.remove(0);
+                      finalPeople.add(person);
+                      teamList.remove(person);
+                      if (kapcsolo) {
+                          kapcsolo = false;
+                      } else {
+                          kapcsolo = true;
+                      }
+                      break;
+                  }
+              }
               
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-		return people;
+		return finalPeople;
 	}
 	
 	/*itt megkeresem annak a kajakosnak a pályáját, akinek ugyanolyan a pálya 
