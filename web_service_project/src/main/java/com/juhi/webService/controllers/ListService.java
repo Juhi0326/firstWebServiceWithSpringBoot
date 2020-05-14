@@ -146,10 +146,190 @@ public class ListService {
                 finalPeople.add(person);
             }
         }
+        
+        //##########################################################################
+      //Innen kezdem a kiemeltes lista rendezését
+              //##########################################################################
+
+              for (int i = 0; i < finalPeople.size(); i++) {
+                  finalPeople.get(i).setField(priorityList.get(0));
+                  finalPeople.get(i).setLevel(levelList.get(0));
+                  
+                  priorityList.remove(0);
+                  levelList.remove(0);
+              }
+              
+              finalPeople.sort(Person.fieldComperator1);
+              
+              try {
+                  for (int i = 0; i < finalPeople.size() - 1; i++) {
+                      //itt ellenőrzöm, hogy két kajakos egymás melletti pályán van-e
+                      //, és ha igen, akkor már rendeztem, vagy sem.
+                      if ((finalPeople.get(i).getTeam().equals(finalPeople.get(i + 1).getTeam())
+                              && finalPeople.get(i).isOrdered() == false) && finalPeople.size()>1) {
+                          //a megkapott értéket változóba mentem, hogy jobban tudjam debug-olni
+                         final int r = excactLevel(finalPeople, finalPeople.get(i + 1).getLevel(),
+                                  finalPeople.get(i + 1).getField());
+                          if (r == 0) {
+                              //csak akkor avatkozom be, ha nem 0 a visszatérési érték
+                          } else {
+                              //a megkapott értéket változóba mentem, hogy jobban tudjam debug-olni
+                              Person p = excactPerson(finalPeople, finalPeople.get(i + 1).getLevel(), finalPeople.get(i + 1).getField());
+                              //csak akkor avatkozom be, ha nem null a visszatérési érték
+                              if (p != null) {
+                                  
+                                  tempField = p.getField();
+                                  //a debug miatt mentettem változóba
+                                  int v = finalPeople.get(i + 1).getField();
+                                  p.setField(v);
+                                  
+                                  finalPeople.get(i + 1).setField(tempField);
+
+                                  //finalPeople.get(i+1).setField(tempField);
+                              }
+                          }
+                      }
+                      finalPeople.get(i).setOrdered(true);
+                  }
+                  
+                  finalPeople.sort(Person.fieldComperator1);
+                  
+              } catch (Exception e) {
+                  System.out.println(e);
+              }
 		
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
 		return people;
 	}
 	
+	/*itt megkeresem annak a kajakosnak a pályáját, akinek ugyanolyan a pálya 
+    szintje, mint a cserélendőnek, ha van ilyen, akkor visszatérek a pályával, 
+    ha nem akkor egy 0-át adok vissza, amit mejd ellenőrzök.*/
+    private int excactLevel(List<Person> lista, int level, int field) {
+        for (Person person : lista) {
+            if (person.getLevel() == level && person.getField() != field) {
+                return person.getField();
+            }
+        }
+        return 0;
+    }
+    
+  //Itt visszatérek azzal a kajakossal, akinek a pályáját majd el kell cserélni. 
+
+    private Person excactPerson(List<Person> lista, int level, int field) {
+        
+        for (int i = 0; i < lista.size(); i++) {
+            
+            if (lista.get(i).getLevel() == level && lista.get(i).getField() != field) {
+                return lista.get(i);
+            }
+        }
+        return null;
+    }
+    
+    /*erre a két függvényre azért van szükségem,mert amikor a kiemelt listához 
+    hozzá akarom adni a nem kiemelteket, akkor két irányból, középről kifelé
+    kell hozzáadogatnom őket úgy, hogy csapattagok ne kerüljenek egymás mellé.
+    ezért szükségem van a level szinten a két utolsó kiemeltre 
+    (ha van egyáltalán kettő).
+     */
+    private Person getTeamOfLastPrioPerson(List<Person> prioLista, boolean kapcsolo) {
+        if (kapcsolo == false) {
+            return prioLista.get(prioLista.size() - 1);
+        } else {
+            return prioLista.get(prioLista.size() - 2);
+        }
+        
+    }
+
+    /*ez a függvény visszaadja, hogy a nem kiemeltes listában hányféle 
+        csapat van.*/
+    private int numberOfTeamsInList(List<Person> TeamLista) {
+        if (TeamLista.isEmpty()) {
+            return 0;
+        } else {
+                    int sumOfTeamInList = 1;
+        for (int i = 0; i < TeamLista.size() - 1; i++) {
+            if (TeamLista.get(i).getTeam().equals(TeamLista.get(i + 1).getTeam())) {
+                
+            } else {
+                sumOfTeamInList++;
+            }
+        }
+        return sumOfTeamInList;
+        }
+
+    }
+
+    /*Ebben a függvényben egy sorszámot adok a listához, és ehhez újra 
+    felhasználom a priority változót-et, amit korábban másra készítettem.
+    a cél az, hogy később ez alapján tudjam rendezni a listát.*/
+    
+    private List<Person> SorszamotAd(List<Person> ujlista, int sorszam) {
+        if (ujlista.isEmpty()) {
+             return ujlista;
+        } else {
+                    ujlista.get(0).setPriority(sorszam);
+        for (int i = 1; i < ujlista.size(); i++) {
+            if (!ujlista.get(i).getTeam().equals(ujlista.get(i - 1).getTeam())) {
+                ujlista.get(i).setPriority(sorszam + 1);
+                sorszam++;
+            } else {
+                ujlista.get(i).setPriority(sorszam);
+            }
+        }
+        return ujlista;
+        }
+
+    }
 	
 	
 	public void clearLists() {
