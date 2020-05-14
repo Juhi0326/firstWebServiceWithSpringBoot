@@ -131,7 +131,21 @@ public class ListService {
 	
 	public  List<Person>orderFields() {
 		people.sort(Person.priorityComperator);
-       
+		priorityList=getPrioList(tableNumber());
+		numberOfField=priorityList.size();
+		levelList=getLevel();
+		
+        // innen kezdem a két fő lista szétválogatását (kiemeltek, nem kiemeltek)
+
+        for (Person person : people) {
+            //ha a priority 100, akkor nem kiemelt, és megy egy sima listába
+            if (person.getPriority() == 100) {
+                teamList.add(person);
+            } else {
+                //különben kiemelt, és megy a kiemeltes listába
+                finalPeople.add(person);
+            }
+        }
 		
 		return people;
 	}
