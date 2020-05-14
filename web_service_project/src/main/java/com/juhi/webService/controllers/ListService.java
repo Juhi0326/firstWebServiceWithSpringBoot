@@ -25,8 +25,7 @@ public class ListService {
 	private List<Person> teamList = new LinkedList();
     @SuppressWarnings("rawtypes")
 	private List<Person> finalPeople = new LinkedList();
-    @SuppressWarnings("rawtypes")
-	private List<Person> tempList = new LinkedList();
+
     
     private int numberOfField;
     private int tempField;
@@ -365,6 +364,9 @@ public class ListService {
 		this.list2.clear();
 		this.priorityList.clear();
 		this.levelList.clear();
+		this.teamList.clear();
+		this.people.clear();
+		this.finalPeople.clear();
 	}
 	
 
