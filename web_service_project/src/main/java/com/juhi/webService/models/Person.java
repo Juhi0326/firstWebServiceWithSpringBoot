@@ -1,5 +1,7 @@
 package com.juhi.webService.models;
 
+import java.util.Comparator;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,6 +35,9 @@ public class Person<priority> {
 	private int field;
 	@Column(name="level")
 	private int level;
+	private boolean ordered;
+	
+
 	@Column(name="startNumber")
 	private int startNumber;
 	
@@ -93,7 +98,12 @@ public class Person<priority> {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-
+	public boolean isOrdered() {
+		return ordered;
+	}
+	public void setOrdered(boolean ordered) {
+		this.ordered = ordered;
+	}
 	
 	public Person(long id, String firstName, String lastName, int startNumber,int priority, String team) {
 		super();
@@ -107,6 +117,34 @@ public class Person<priority> {
 	public Person() {
 
 	}
+	
+	 @SuppressWarnings("rawtypes")
+	public static Comparator<Person>levelComperator=(Person o1, Person o2) -> {
+	        int leve1=o1.getPriority();
+	        int leve2=o2.getPriority();
+	        return Integer.compare(leve1, leve2);
+	    };
+
+	   @SuppressWarnings("rawtypes")
+	public static Comparator<Person>TeamComperator=(Person o1, Person o2) -> {
+	       String TeamName1=o1.getTeam();
+	       String TeamName2=o2.getTeam();
+	       return TeamName1.compareTo(TeamName2);
+	    };
+	    @SuppressWarnings("rawtypes")
+		public static Comparator<Person>priorityComperator=(Person o1, Person o2) -> {
+	        int priority1=o1.getPriority();
+	        int priority2=o2.getPriority();
+	        return Integer.compare(priority1, priority2);
+	    };
+	    
+
+	     @SuppressWarnings("rawtypes")
+		public static Comparator<Person>fieldComperator1=(Person o1, Person o2) -> {
+	         int field1=o1.getField();
+	         int field2=o2.getField();
+	         return Integer.compare(field1,field2);
+	    };
 
 
 }

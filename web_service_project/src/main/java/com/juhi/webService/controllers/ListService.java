@@ -20,6 +20,7 @@ public class ListService {
     private List<Integer> output = new LinkedList<>();
     private List<Integer> levelList = new LinkedList<>();
     private List<Person> people = new LinkedList<>();
+    private List<Person> tempList = new LinkedList();
     
     
     
@@ -35,7 +36,7 @@ public class ListService {
 	@SuppressWarnings("rawtypes")
 	private List<Person> ListOfPerson(){
 		this.people=this.personRepository.findAll();
-		return this.people;
+		return this.orderFields();
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -113,6 +114,7 @@ public class ListService {
 	
 	public  List<Person>orderFields() {
 		
+       
 		
 		return people;
 	}
