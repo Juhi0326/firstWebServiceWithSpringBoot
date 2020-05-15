@@ -375,6 +375,7 @@ public class ListService {
 	public void clearLists() {
 
 		this.list1.clear();
+		this.kapcsolo=false;
 		this.list2.clear();
 		this.priorityList.clear();
 		this.levelList.clear();
