@@ -206,9 +206,15 @@ public class ListService {
 
 		teamList = SorszamotAd(teamList, sorszam);
 
-		teamList.sort(Person.priorityComperator);
+		teamList.sort(Person.priorityComperator2);
 
 		finalPeople.sort(Person.levelComperator);
+		
+        if (finalPeople.size() % 2 == 0 && !finalPeople.isEmpty()) {
+            kapcsolo=true;
+        } else {
+            kapcsolo=false;
+        }
 
 		teamlist = numberOfTeamsInList(teamList);
 

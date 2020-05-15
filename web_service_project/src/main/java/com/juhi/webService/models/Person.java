@@ -138,6 +138,13 @@ public class Person<priority> {
 	        return Integer.compare(priority1, priority2);
 	    };
 	    
+        @SuppressWarnings("rawtypes")
+		public static Comparator<Person>priorityComperator2=(Person o1, Person o2) -> {
+        int priority1=o1.getPriority();
+        int priority2=o2.getPriority();
+        return Integer.compare(priority2, priority1);
+    };
+	    
 
 	     @SuppressWarnings("rawtypes")
 		public static Comparator<Person>fieldComperator1=(Person o1, Person o2) -> {
