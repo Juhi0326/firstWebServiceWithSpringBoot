@@ -1,4 +1,5 @@
 package com.juhi.webService.controllers;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -20,9 +21,7 @@ import com.juhi.webService.repositories.PersonRepository;
 @RequestMapping("api/v1/people")
 @CrossOrigin(origins= "*")
 public class PersonController {
-	
-	
-	
+		
 	@Autowired
 	private PersonRepository personRepository;
 	
@@ -44,12 +43,12 @@ public class PersonController {
 	//@ResponseStatus(HttpStatus.OK)
 	public String create(@RequestBody Person person) {
 		
-		personRepository.save(person);
-		this.ListService.clearLists();
-		return "The new person is created succesfully."
-				+ "és ennyi entity van: " + this.ListService.tableNumber()+
-					"és ez pálya erősorrendje: " + this.ListService.getPrioList(this.ListService.tableNumber())+ 
-					"és ezek a szintek adhatóak ki sorrendben: "+ this.ListService.getLevel();
+
+			this.ListService.clearLists();
+			personRepository.save(person);
+			return "A versenyző sikeresen hozzá lett adva a futamhoz!";
+					
+		
 				
 	}
 	@SuppressWarnings("rawtypes")

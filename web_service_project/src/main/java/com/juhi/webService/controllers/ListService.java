@@ -1,8 +1,15 @@
 package com.juhi.webService.controllers;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import com.juhi.webService.models.Person;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,6 +31,7 @@ public class ListService {
 	private List<Person> teamList = new LinkedList();
 	@SuppressWarnings("rawtypes")
 	private List<Person> finalPeople = new LinkedList();
+	private List<Integer> prios= new LinkedList();
 
 	private int numberOfField;
 	private int tempField;
@@ -202,11 +210,22 @@ public class ListService {
 		// Innen kezdem a sima lista rendezését
 		// ##########################################################################
 		// sorbaradezem csapat szernit
-		teamList.sort(Person.TeamComperator);
-
-		teamList = SorszamotAd(teamList, sorszam);
-
-		teamList.sort(Person.priorityComperator2);
+		
+		teamlist = numberOfTeamsInList(teamList);
+		
+		/*Itt Stream segítségével úgy rendezem a listát, hogy először
+		 * azok a csapatok legyenek, ahol a legtöbb kajakos van.
+		 */
+		
+		List<Person> finalTeamList = teamList.stream()
+				 
+                .collect(groupingBy(Person::getTeam))
+                .values()
+                .stream()
+                .sorted((o1,o2)-> o2.size()-o1.size())
+                .flatMap(Collection::stream)
+                .collect(toList());
+		teamList=finalTeamList;
 
 		finalPeople.sort(Person.levelComperator);
 		
@@ -215,8 +234,8 @@ public class ListService {
         } else {
             kapcsolo=false;
         }
-
-		teamlist = numberOfTeamsInList(teamList);
+        //itt megkapom, hogy hnyféle csapat van abban a alistában, ahol nem a kiemeltek vannak
+		
 
 		while (teamlist > 1 && !teamList.isEmpty()) {
 			if (!finalPeople.isEmpty()) {
@@ -353,31 +372,7 @@ public class ListService {
 
 	}
 
-	/*
-	 * Ebben a függvényben egy sorszámot adok a listához, és ehhez újra felhasználom
-	 * a priority változót-et, amit korábban másra készítettem. a cél az, hogy
-	 * később ez alapján tudjam rendezni a listát.
-	 */
-
-	@SuppressWarnings("rawtypes")
-	private List<Person> SorszamotAd(List<Person> ujlista, int sorszam) {
-		if (ujlista.isEmpty()) {
-			return ujlista;
-		} else {
-			ujlista.get(0).setPriority(sorszam);
-			for (int i = 1; i < ujlista.size(); i++) {
-				if (!ujlista.get(i).getTeam().equals(ujlista.get(i - 1).getTeam())) {
-					ujlista.get(i).setPriority(sorszam + 1);
-					sorszam++;
-				} else {
-					ujlista.get(i).setPriority(sorszam);
-				}
-			}
-			return ujlista;
-		}
-
-	}
-
+	
 	public void clearLists() {
 
 		this.list1.clear();
@@ -388,6 +383,7 @@ public class ListService {
 		this.teamList.clear();
 		this.people.clear();
 		this.finalPeople.clear();
+
 	}
 
 }
