@@ -38,6 +38,7 @@ public class ListService {
 	private int tempField;
 	private int counter = 0;
 	private int number;
+	
 	/*
 	 * a "kapcsolo" változó azért lett bevezetve, mert egyszer az egyik oldalra,
 	 * egyszer a másik oldalra kell pakolnom a kajakosokat
@@ -405,12 +406,21 @@ public class ListService {
 	 */
 	
 	private Person getTeamOfLastPrioPerson(List<Person> prioLista) {
-		if (prioLista.size()==1) {
-			return prioLista.get(prioLista.size() - 1);
+		if (priorityList.get(0)<fele) {
+			for (Person person : prioLista) {
+				if (person.getField()==priorityList.get(0)+1) {
+					return person;
+				}
+			}
+
 		} else {
-			return prioLista.get(prioLista.size() - 2);
+			for (Person person : prioLista) {
+				if (person.getField()==priorityList.get(0)-1) {
+					return person;
+				}
+			}
 		}
-			
+		return prioLista.get(0);
 	}
 
 	/*
