@@ -215,9 +215,7 @@ public class ListService {
 		
 		teamlist = numberOfTeamsInList(teamList);
 		
-		/*Itt Stream segítségével úgy rendezem a listát, hogy először
-		 * azok a csapatok legyenek, ahol a legtöbb kajakos van.
-		 */
+
 		
 
 
@@ -225,6 +223,9 @@ public class ListService {
 			
 			if (!finalPeople.isEmpty()) {
 				
+				/*Itt Stream segítségével úgy rendezem a listát, hogy először
+				 * azok a csapatok legyenek, ahol a legtöbb kajakos van.
+				 */
 				List<Person> finalTeamList = teamList.stream()
 						 
 		                .collect(groupingBy(Person::getTeam))
