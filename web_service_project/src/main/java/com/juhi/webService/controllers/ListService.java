@@ -219,22 +219,21 @@ public class ListService {
 		 * azok a csapatok legyenek, ahol a legtöbb kajakos van.
 		 */
 		
-		List<Person> finalTeamList = teamList.stream()
-				 
-                .collect(groupingBy(Person::getTeam))
-                .values()
-                .stream()
-                .sorted((o1,o2)-> o2.size()-o1.size())
-                .flatMap(Collection::stream)
-                .collect(toList());
-		teamList=finalTeamList;
-		
-	
-		
-		
+
+
 		while (!teamList.isEmpty()) {
 			
 			if (!finalPeople.isEmpty()) {
+				
+				List<Person> finalTeamList = teamList.stream()
+						 
+		                .collect(groupingBy(Person::getTeam))
+		                .values()
+		                .stream()
+		                .sorted((o1,o2)-> o2.size()-o1.size())
+		                .flatMap(Collection::stream)
+		                .collect(toList());
+				teamList=finalTeamList;
 				
 				Person utolso = getTeamOfLastPrioPerson(finalPeople);
 
@@ -318,8 +317,6 @@ public class ListService {
 										// finalPeople.get(i+1).setField(tempField);
 									}
 								}
-						
-						
 
 					}
 
