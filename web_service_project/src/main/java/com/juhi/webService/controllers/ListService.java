@@ -1,6 +1,7 @@
 package com.juhi.webService.controllers;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import com.juhi.webService.models.Person;
@@ -200,7 +201,7 @@ public class ListService {
 				finalPeople.get(i).setOrdered(true);
 			}
 
-			finalPeople.sort(Person.fieldComperator1);
+			finalPeople.sort(Person.priorityComperator);
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -226,20 +227,15 @@ public class ListService {
                 .flatMap(Collection::stream)
                 .collect(toList());
 		teamList=finalTeamList;
-
-		finalPeople.sort(Person.levelComperator);
 		
-        if (finalPeople.size() % 2 == 0 && !finalPeople.isEmpty()) {
-            kapcsolo=true;
-        } else {
-            kapcsolo=false;
-        }
-        //itt megkapom, hogy hnyféle csapat van abban a alistában, ahol nem a kiemeltek vannak
+	
 		
-
-		while (teamlist > 1 && !teamList.isEmpty()) {
+		
+		while (!teamList.isEmpty()) {
+			
 			if (!finalPeople.isEmpty()) {
-				Person utolso = getTeamOfLastPrioPerson(finalPeople, kapcsolo);
+				
+				Person utolso = getTeamOfLastPrioPerson(finalPeople);
 
 				for (int i = 0; i <= teamList.size() - 1; i++) {
 					if (!teamList.get(i).getTeam().equals(utolso.getTeam()) && probalkozas < teamList.size()) {
@@ -252,14 +248,82 @@ public class ListService {
 						levelList.remove(0);
 						finalPeople.add(teamList.get(i));
 						teamList.remove(i);
-						if (kapcsolo) {
-							kapcsolo = false;
-						} else {
-							kapcsolo = true;
-						}
+
 						probalkozas = 0;
 						break;
-					} else {
+						
+					} else if (teamList.get(i).getTeam().equals(utolso.getTeam()) && probalkozas >= teamList.size()) {
+					
+								final int r = excactLevel(finalPeople, utolso.getLevel(),
+										utolso.getField());
+								if (r == 0) {
+									
+									teamList.get(i).setField(priorityList.get(0));
+
+									teamList.get(i).setLevel(levelList.get(0));
+									teamList.get(i).setPriority(100);
+									priorityList.remove(0);
+									levelList.remove(0);
+									finalPeople.add(teamList.get(i));
+									teamList.remove(i);
+
+									probalkozas = 0;
+									break;					
+								
+	
+								} else {
+									// a megkapott értéket változóba mentem, hogy jobban tudjam debug-olni
+									Person p = excactPerson(finalPeople, utolso.getLevel(),
+											utolso.getField());
+									// csak akkor avatkozom be, ha nem null a visszatérési érték
+									if (p != null) {
+										
+										boolean check=checkPriolist(this.finalPeople, p, utolso.getTeam());
+										
+										if(check==false) {
+											teamList.get(i).setField(priorityList.get(0));
+
+											teamList.get(i).setLevel(levelList.get(0));
+											teamList.get(i).setPriority(100);
+											priorityList.remove(0);
+											levelList.remove(0);
+											finalPeople.add(teamList.get(i));
+											teamList.remove(i);
+											break;
+										} 
+										
+										else {
+		
+										tempField = p.getField();
+										// a debug miatt mentettem változóba
+										int v = utolso.getField();
+										p.setField(v);
+		
+										utolso.setField(tempField);
+										
+										teamList.get(i).setField(priorityList.get(0));
+
+										teamList.get(i).setLevel(levelList.get(0));
+										teamList.get(i).setPriority(100);
+										priorityList.remove(0);
+										levelList.remove(0);
+										finalPeople.add(teamList.get(i));
+										teamList.remove(i);
+
+										probalkozas = 0;
+										break;					
+									
+										}
+										// finalPeople.get(i+1).setField(tempField);
+									}
+								}
+						
+						
+
+					}
+
+					else{
+
 						probalkozas++;
 					}
 
@@ -281,7 +345,7 @@ public class ListService {
 				teamlist = numberOfTeamsInList(teamList);
 			}
 		}
-
+		
 		while (!teamList.isEmpty()) {
 			for (Person person : teamList) {
 
@@ -293,17 +357,15 @@ public class ListService {
 				levelList.remove(0);
 				finalPeople.add(person);
 				teamList.remove(person);
-				if (kapcsolo) {
-					kapcsolo = false;
-				} else {
-					kapcsolo = true;
-				}
+
 				break;
 			}
 		}
-
+		finalPeople.sort(Person.fieldComperator1);
 		return finalPeople;
 	}
+	
+	
 
 	/*
 	 * itt megkeresem annak a kajakosnak a pályáját, akinek ugyanolyan a pálya
@@ -341,14 +403,14 @@ public class ListService {
 	 * szükségem van a level szinten a két utolsó kiemeltre (ha van egyáltalán
 	 * kettő).
 	 */
-	@SuppressWarnings("rawtypes")
-	private Person getTeamOfLastPrioPerson(List<Person> prioLista, boolean kapcsolo) {
-		if (kapcsolo == false) {
+	
+	private Person getTeamOfLastPrioPerson(List<Person> prioLista) {
+		if (prioLista.size()==1) {
 			return prioLista.get(prioLista.size() - 1);
 		} else {
 			return prioLista.get(prioLista.size() - 2);
 		}
-
+			
 	}
 
 	/*
@@ -371,6 +433,43 @@ public class ListService {
 		}
 
 	}
+	
+	/*Ez a metódus azt ellenőrzi, hogy amennyiben az új hozzáadott kajakos miatt
+	 * cserélni kellene a priolistában mellé kerülő kajakosnak a pályályát, akkor
+	 * ahová kerülne (a level szintet kell nézni), ott a mellett lévő kajakosok 
+	 * csapata megegyezik-e a cserélendő kajakos csapatával. Ha nem egyezik meg, 
+	 * akkor az érték true, tehát mehet a csere, de ha megyegyezik, akkor nem cserélem.
+	 * */
+	private boolean checkPriolist(List<Person> PrioList, Person person, String team) {
+		
+		for (int i = 0; i < PrioList.size()-1; i++) {
+			
+			if (PrioList.get(i).equals(person)) {
+				if (i!=0 && i!= PrioList.size()-1) {
+					if (team.equals(PrioList.get(i-1).getTeam()) 
+						|| team.equals(PrioList.get(i+1).getTeam()))
+					{return false;
+					} else return true;
+					}
+					
+					else if (i==0 && i!= PrioList.size()-1) {
+						if (team.equals(PrioList.get(i+1).getTeam())) 
+						{return false;} else return true;}
+					else if (i!=0 && i== PrioList.size()-1) {
+						if (team.equals(PrioList.get(i-1).getTeam())) 
+						{return false;} else return true;
+					}
+					else return true;
+					
+				}
+			
+				
+			}
+			
+		
+		
+		return false;
+	}
 
 	
 	public void clearLists() {
@@ -383,6 +482,7 @@ public class ListService {
 		this.teamList.clear();
 		this.people.clear();
 		this.finalPeople.clear();
+		this.probalkozas=0;
 
 	}
 
