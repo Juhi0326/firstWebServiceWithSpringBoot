@@ -32,13 +32,13 @@ public class ListService {
 	private List<Person> teamList = new LinkedList();
 	@SuppressWarnings("rawtypes")
 	private List<Person> finalPeople = new LinkedList();
-	private List<Integer> prios= new LinkedList();
+	private List<Integer> prios = new LinkedList();
 
 	private int numberOfField;
 	private int tempField;
 	private int counter = 0;
 	private int number;
-	
+
 	/*
 	 * a "kapcsolo" változó azért lett bevezetve, mert egyszer az egyik oldalra,
 	 * egyszer a másik oldalra kell pakolnom a kajakosokat
@@ -212,116 +212,73 @@ public class ListService {
 		// Innen kezdem a sima lista rendezését
 		// ##########################################################################
 		// sorbaradezem csapat szernit
-		
+
 		teamlist = numberOfTeamsInList(teamList);
-		
-
-		
-
 
 		while (!teamList.isEmpty()) {
-			
+
 			if (!finalPeople.isEmpty()) {
-				
-				/*Itt Stream segítségével úgy rendezem a listát, hogy először
-				 * azok a csapatok legyenek, ahol a legtöbb kajakos van.
+
+				/*
+				 * Itt a Stream API segítségével úgy rendezem a listát, hogy először azok a
+				 * csapatok legyenek, ahol a legtöbb kajakos van.
 				 */
 				List<Person> finalTeamList = teamList.stream()
-						 
-		                .collect(groupingBy(Person::getTeam))
-		                .values()
-		                .stream()
-		                .sorted((o1,o2)-> o2.size()-o1.size())
-		                .flatMap(Collection::stream)
-		                .collect(toList());
-				teamList=finalTeamList;
-				
+
+						.collect(groupingBy(Person::getTeam)).values().stream()
+						.sorted((o1, o2) -> o2.size() - o1.size()).flatMap(Collection::stream).collect(toList());
+				teamList = finalTeamList;
+
 				Person utolso = getTeamOfLastPrioPerson(finalPeople);
 
 				for (int i = 0; i <= teamList.size() - 1; i++) {
 					if (!teamList.get(i).getTeam().equals(utolso.getTeam()) && probalkozas < teamList.size()) {
-
-						teamList.get(i).setField(priorityList.get(0));
-
-						teamList.get(i).setLevel(levelList.get(0));
-						teamList.get(i).setPriority(100);
-						priorityList.remove(0);
-						levelList.remove(0);
-						finalPeople.add(teamList.get(i));
-						teamList.remove(i);
-
+						putToList(teamList.get(i));
 						probalkozas = 0;
 						break;
-						
+
 					} else if (teamList.get(i).getTeam().equals(utolso.getTeam()) && probalkozas >= teamList.size()) {
-					
-								final int r = excactLevel(finalPeople, utolso.getLevel(),
-										utolso.getField());
-								if (r == 0) {
-									
-									teamList.get(i).setField(priorityList.get(0));
 
-									teamList.get(i).setLevel(levelList.get(0));
-									teamList.get(i).setPriority(100);
-									priorityList.remove(0);
-									levelList.remove(0);
-									finalPeople.add(teamList.get(i));
-									teamList.remove(i);
+						final int r = excactLevel(finalPeople, utolso.getLevel(), utolso.getField());
+						if (r == 0) {
+							putToList(teamList.get(i));
+							probalkozas = 0;
+							break;
 
-									probalkozas = 0;
-									break;					
-								
-	
-								} else {
-									// a megkapott értéket változóba mentem, hogy jobban tudjam debug-olni
-									Person p = excactPerson(finalPeople, utolso.getLevel(),
-											utolso.getField());
-									// csak akkor avatkozom be, ha nem null a visszatérési érték
-									if (p != null) {
-										
-										boolean check=checkPriolist(this.finalPeople, p, utolso.getTeam());
-										
-										if(check==false) {
-											teamList.get(i).setField(priorityList.get(0));
+						} else {
+							// a megkapott értéket változóba mentem, hogy jobban tudjam debug-olni
+							Person p = excactPerson(finalPeople, utolso.getLevel(), utolso.getField());
+							// csak akkor avatkozom be, ha nem null a visszatérési érték
+							if (p != null) {
 
-											teamList.get(i).setLevel(levelList.get(0));
-											teamList.get(i).setPriority(100);
-											priorityList.remove(0);
-											levelList.remove(0);
-											finalPeople.add(teamList.get(i));
-											teamList.remove(i);
-											break;
-										} 
-										
-										else {
-		
-										tempField = p.getField();
-										// a debug miatt mentettem változóba
-										int v = utolso.getField();
-										p.setField(v);
-		
-										utolso.setField(tempField);
-										
-										teamList.get(i).setField(priorityList.get(0));
+								boolean check = checkPriolist(this.finalPeople, p, utolso.getTeam());
 
-										teamList.get(i).setLevel(levelList.get(0));
-										teamList.get(i).setPriority(100);
-										priorityList.remove(0);
-										levelList.remove(0);
-										finalPeople.add(teamList.get(i));
-										teamList.remove(i);
+								if (check == false) {
 
-										probalkozas = 0;
-										break;					
-									
-										}
-										// finalPeople.get(i+1).setField(tempField);
-									}
+									putToList(teamList.get(i));
+									break;
 								}
+
+								else {
+
+									tempField = p.getField();
+									// a debug miatt mentettem változóba
+									int v = utolso.getField();
+									p.setField(v);
+
+									utolso.setField(tempField);
+
+									putToList(teamList.get(i));
+									probalkozas = 0;
+									break;
+
+								}
+							}
+						}
 
 					}
 
-					else{
+					else {
 
 						probalkozas++;
 					}
@@ -331,40 +288,17 @@ public class ListService {
 			} else {
 				// ha nincs a kiemelteslistában senki, akkor ez fut le!
 
-				teamList.get(0).setLevel(levelList.get(0));
-				teamList.get(0).setField(priorityList.get(0));
-				teamList.get(0).setPriority(100);
-				priorityList.remove(0);
-				levelList.remove(0);
-				finalPeople.add(teamList.get(0));
-				teamList.remove(0);
+				putToList(teamList.get(0));
 
 			}
 			if (!teamList.isEmpty()) {
 				teamlist = numberOfTeamsInList(teamList);
 			}
 		}
-		
-		while (!teamList.isEmpty()) {
-			for (Person person : teamList) {
 
-				person.setField(priorityList.get(0));
-
-				person.setLevel(levelList.get(0));
-				person.setPriority(100);
-				priorityList.remove(0);
-				levelList.remove(0);
-				finalPeople.add(person);
-				teamList.remove(person);
-
-				break;
-			}
-		}
 		finalPeople.sort(Person.fieldComperator1);
 		return finalPeople;
 	}
-	
-	
 
 	/*
 	 * itt megkeresem annak a kajakosnak a pályáját, akinek ugyanolyan a pálya
@@ -402,18 +336,18 @@ public class ListService {
 	 * szükségem van a level szinten a két utolsó kiemeltre (ha van egyáltalán
 	 * kettő).
 	 */
-	
+
 	private Person getTeamOfLastPrioPerson(List<Person> prioLista) {
-		if (priorityList.get(0)<fele) {
+		if (priorityList.get(0) < fele) {
 			for (Person person : prioLista) {
-				if (person.getField()==priorityList.get(0)+1) {
+				if (person.getField() == priorityList.get(0) + 1) {
 					return person;
 				}
 			}
 
 		} else {
 			for (Person person : prioLista) {
-				if (person.getField()==priorityList.get(0)-1) {
+				if (person.getField() == priorityList.get(0) - 1) {
 					return person;
 				}
 			}
@@ -441,56 +375,70 @@ public class ListService {
 		}
 
 	}
-	
-	/*Ez a metódus azt ellenőrzi, hogy amennyiben az új hozzáadott kajakos miatt
+
+	/*
+	 * Ez a metódus azt ellenőrzi, hogy amennyiben az új hozzáadott kajakos miatt
 	 * cserélni kellene a priolistában mellé kerülő kajakosnak a pályályát, akkor
-	 * ahová kerülne (a level szintet kell nézni), ott a mellett lévő kajakosok 
-	 * csapata megegyezik-e a cserélendő kajakos csapatával. Ha nem egyezik meg, 
-	 * akkor az érték true, tehát mehet a csere, de ha megyegyezik, akkor nem cserélem.
-	 * */
+	 * ahová kerülne (a level szintet kell nézni), ott a mellette lévő kajakosok
+	 * csapata megegyezik-e a cserélendő kajakos csapatával. Ha nem egyezik meg,
+	 * akkor az érték true, tehát mehet a csere, de ha megyegyezik, akkor nem
+	 * cserélem.
+	 */
 	private boolean checkPriolist(List<Person> PrioList, Person person, String team) {
-		
-		for (int i = 0; i < PrioList.size()-1; i++) {
-			
+
+		for (int i = 0; i < PrioList.size() - 1; i++) {
+
 			if (PrioList.get(i).equals(person)) {
-				if (i!=0 && i!= PrioList.size()-1) {
-					if (team.equals(PrioList.get(i-1).getTeam()) 
-						|| team.equals(PrioList.get(i+1).getTeam()))
-					{return false;
-					} else return true;
-					}
-					
-					else if (i==0 && i!= PrioList.size()-1) {
-						if (team.equals(PrioList.get(i+1).getTeam())) 
-						{return false;} else return true;}
-					else if (i!=0 && i== PrioList.size()-1) {
-						if (team.equals(PrioList.get(i-1).getTeam())) 
-						{return false;} else return true;
-					}
-					else return true;
-					
+				if (i != 0 && i != PrioList.size() - 1) {
+					if (team.equals(PrioList.get(i - 1).getTeam()) || team.equals(PrioList.get(i + 1).getTeam())) {
+						return false;
+					} else
+						return true;
 				}
-			
-				
+
+				else if (i == 0 && i != PrioList.size() - 1) {
+					if (team.equals(PrioList.get(i + 1).getTeam())) {
+						return false;
+					} else
+						return true;
+				} else if (i != 0 && i == PrioList.size() - 1) {
+					if (team.equals(PrioList.get(i - 1).getTeam())) {
+						return false;
+					} else
+						return true;
+				} else
+					return true;
 			}
-			
-		
-		
+
+		}
+
 		return false;
 	}
 
-	
+	private void putToList(Person person) {
+
+		person.setField(priorityList.get(0));
+
+		person.setLevel(levelList.get(0));
+		person.setPriority(100);
+		priorityList.remove(0);
+		levelList.remove(0);
+		finalPeople.add(person);
+		teamList.remove(person);
+
+	}
+
 	public void clearLists() {
 
 		this.list1.clear();
-		this.kapcsolo=false;
+		this.kapcsolo = false;
 		this.list2.clear();
 		this.priorityList.clear();
 		this.levelList.clear();
 		this.teamList.clear();
 		this.people.clear();
 		this.finalPeople.clear();
-		this.probalkozas=0;
+		this.probalkozas = 0;
 
 	}
 
